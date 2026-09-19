@@ -128,7 +128,7 @@ def _heuristic_label(paragraph) -> Optional[str]:
     if text_upper.startswith("GAMBAR ") or text_upper.startswith("FIGURE "):
         return "caption_gambar"
 
-    if any(term in text_upper for term in (
+    if len(text) < 140 and any(term in text_upper for term in (
         "PROGRAM STUDI", "FAKULTAS", "UNIVERSITAS", "INSTITUT",
         "NAMA", "NIM", "TAHUN ",
     )):
@@ -196,23 +196,56 @@ def extract_paragraph_properties(paragraph) -> dict:
     }
 
 
-def _majority_value(values: list, exclude: tuple = (None,)) -> Optional[object]:
+def _majority_value(
+    values: list,
+    exclude: tuple = (),
+    min_ratio: float = 0.5,
+    treat_none_as: Optional[object] = None,
+) -> Optional[object]:
     """
-    Kembalikan nilai yang paling sering muncul dari sebuah list,
-    mengecualikan nilai-nilai tertentu (default: None).
+    Kembalikan nilai yang paling sering muncul dari sebuah list (modus),
+    dengan mempertimbangkan proporsi terhadap TOTAL sampel (termasuk None).
 
     Args:
         values: List nilai
         exclude: Tuple nilai yang diabaikan
+        min_ratio: Proporsi minimum dari total sampel agar nilai non-None menang (default 0.5)
+        treat_none_as: Jika diisi, nilai None dianggap bernilai ini saat voting (misal 0.0 untuk indent)
 
     Returns:
-        Nilai modus, atau None jika semua excluded
+        Nilai modus jika mencapai ambang batas, atau None / treat_none_as
     """
-    filtered = [v for v in values if v not in exclude]
-    if not filtered:
+    if not values:
+        return treat_none_as
+
+    total_count = len(values)
+
+    # Jika treat_none_as diberikan, transformasikan None ke nilai default tersebut
+    if treat_none_as is not None:
+        transformed = [treat_none_as if v is None else v for v in values]
+        filtered = [v for v in transformed if v not in exclude]
+        if not filtered:
+            return treat_none_as
+        counter = Counter(filtered)
+        winner, count = counter.most_common(1)[0]
+        if count / total_count >= min_ratio:
+            return winner
+        return treat_none_as
+
+    # Jika treat_none_as is None:
+    # Hanya nilai non-None yang valid untuk voting
+    non_none = [v for v in values if v is not None and v not in exclude]
+    if not non_none:
         return None
-    counter = Counter(filtered)
-    return counter.most_common(1)[0][0]
+
+    counter = Counter(non_none)
+    winner, count = counter.most_common(1)[0]
+
+    # Ambang batas dihitung terhadap TOTAL sampel (termasuk sampel yang bernilai None)
+    if count / total_count >= min_ratio:
+        return winner
+
+    return None
 
 
 def _aggregate_style(samples: list[dict]) -> dict:
@@ -252,7 +285,7 @@ def _aggregate_style(samples: list[dict]) -> dict:
                 for value in values
                 if value
             ]
-            selected = _majority_value(canonical)
+            selected = _majority_value(canonical, min_ratio=0.5)
             aggregated[key] = (
                 [
                     {
@@ -265,12 +298,15 @@ def _aggregate_style(samples: list[dict]) -> dict:
                 if selected is not None
                 else None
             )
+        elif key in {"left_indent_cm", "right_indent_cm"}:
+            # Untuk indent kiri/kanan, default Word style adalah 0.0 jika tidak ada override
+            aggregated[key] = _majority_value(values, min_ratio=0.5, treat_none_as=0.0)
         else:
-            aggregated[key] = _majority_value(values)
+            aggregated[key] = _majority_value(values, min_ratio=0.5)
 
     # Round nilai numerik agar lebih bersih
     for num_key in ("font_size_pt", "line_spacing", "space_before_pt",
-                    "space_after_pt", "first_line_indent_cm"):
+                    "space_after_pt", "first_line_indent_cm", "left_indent_cm", "right_indent_cm"):
         if aggregated.get(num_key) is not None:
             aggregated[num_key] = round(aggregated[num_key], 2)
 

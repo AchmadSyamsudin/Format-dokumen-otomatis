@@ -211,6 +211,15 @@ def format_document(
     styles: dict[str, dict] = template_config.get("styles", {})
     default_line_spacing = template_config.get("default_line_spacing", 1.5)
 
+    # Logging debug (2): Cek apakah key "pengesahan_heading" ada di styles dict hasil ekstraksi
+    has_pengesahan_heading = "pengesahan_heading" in styles
+    logger.info(
+        "[DEBUG PENGESAHAN] (2) Apakah key 'pengesahan_heading' ada di styles dict FILE REFERENSI? %s (Total style keys: %d, keys: %s)",
+        has_pengesahan_heading,
+        len(styles),
+        list(styles.keys()),
+    )
+
     # Inject default_line_spacing ke style "isi" jika belum ada
     if "isi" in styles and styles["isi"].get("line_spacing") is None:
         styles["isi"]["line_spacing"] = default_line_spacing
@@ -229,6 +238,8 @@ def format_document(
     stats = {"formatted": 0, "skipped_empty": 0, "skipped_no_label": 0, "skipped_no_style": 0}
 
     for idx, para in enumerate(doc.paragraphs):
+        para_text = get_paragraph_text(para)
+
         # Lewati paragraf kosong
         if is_paragraph_empty(para):
             stats["skipped_empty"] += 1
@@ -240,6 +251,16 @@ def format_document(
         else:
             label = labelled_paragraphs.get(idx)
 
+        # Logging debug (1): Cek label yang ter-assign untuk tiap paragraf yang mengandung "LEMBAR PENGESAHAN"
+        if "LEMBAR PENGESAHAN" in para_text.upper():
+            logger.info(
+                "[DEBUG PENGESAHAN] (1) Paragraf #%d mengandung 'LEMBAR PENGESAHAN'. Teks: %r | Assigned label: %r | Ada di styles: %s",
+                idx,
+                para_text.strip(),
+                label,
+                (label in styles) if label else False,
+            )
+
         if label is None:
             stats["skipped_no_label"] += 1
             logger.debug("Paragraf #%d: tidak berlabel, dilewati.", idx)
@@ -248,6 +269,23 @@ def format_document(
         # Cari style di config
         style_config = styles.get(label)
         if style_config is None:
+            # Penanganan khusus: Jika label pengesahan_heading tapi tidak ada style spesifik,
+            # tetap berikan page_break_before & keep_with_next, serta fallback ke style judul_bab
+            if label == "pengesahan_heading":
+                logger.info(
+                    "[DEBUG PENGESAHAN] Paragraf #%d [%s] tidak ada di styles. Menerapkan page_break_before & keep_with_next dengan fallback ke judul_bab.",
+                    idx, label
+                )
+                if "judul_bab" in styles:
+                    apply_style_to_paragraph(para, styles["judul_bab"])
+                para.paragraph_format.page_break_before = True
+                para.paragraph_format.keep_with_next = True
+                next_idx = idx + 1
+                if next_idx < len(doc.paragraphs) and is_paragraph_empty(doc.paragraphs[next_idx]):
+                    doc.paragraphs[next_idx].paragraph_format.keep_with_next = True
+                stats["formatted"] += 1
+                continue
+
             stats["skipped_no_style"] += 1
             logger.debug(
                 "Paragraf #%d: label '%s' tidak ada di config, dilewati.",
@@ -256,7 +294,7 @@ def format_document(
             continue
 
         # Terapkan style
-        text_preview = get_paragraph_text(para)[:50]
+        text_preview = para_text[:50]
         logger.debug("Paragraf #%d [%s]: '%s...'", idx, label, text_preview)
         apply_style_to_paragraph(para, style_config)
         if label == "pengesahan_heading":
