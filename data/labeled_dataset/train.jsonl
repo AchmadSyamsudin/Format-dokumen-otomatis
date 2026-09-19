@@ -1,0 +1,64 @@
+{"text": "BAB I PENDAHULUAN", "label": "judul_bab"}
+{"text": "BAB II TINJAUAN PUSTAKA", "label": "judul_bab"}
+{"text": "BAB III METODOLOGI PENELITIAN", "label": "judul_bab"}
+{"text": "BAB IV HASIL DAN PEMBAHASAN", "label": "judul_bab"}
+{"text": "BAB V KESIMPULAN DAN SARAN", "label": "judul_bab"}
+{"text": "DAFTAR PUSTAKA", "label": "judul_bab"}
+{"text": "LAMPIRAN", "label": "judul_bab"}
+{"text": "1.1 Latar Belakang", "label": "sub_bab"}
+{"text": "1.2 Rumusan Masalah", "label": "sub_bab"}
+{"text": "1.3 Tujuan Penelitian", "label": "sub_bab"}
+{"text": "1.4 Manfaat Penelitian", "label": "sub_bab"}
+{"text": "1.5 Batasan Masalah", "label": "sub_bab"}
+{"text": "2.1 Penelitian Terdahulu", "label": "sub_bab"}
+{"text": "2.2 Landasan Teori", "label": "sub_bab"}
+{"text": "2.3 Natural Language Processing", "label": "sub_bab"}
+{"text": "3.1 Metode Penelitian", "label": "sub_bab"}
+{"text": "3.2 Pengumpulan Data", "label": "sub_bab"}
+{"text": "3.3 Perancangan Sistem", "label": "sub_bab"}
+{"text": "1.1.1 Perkembangan Teknologi Informasi", "label": "sub_sub_bab"}
+{"text": "1.1.2 Permasalahan Format Dokumen", "label": "sub_sub_bab"}
+{"text": "2.2.1 Definisi Natural Language Processing", "label": "sub_sub_bab"}
+{"text": "2.2.2 Model BERT dan Variannya", "label": "sub_sub_bab"}
+{"text": "3.3.1 Arsitektur Sistem", "label": "sub_sub_bab"}
+{"text": "Perkembangan teknologi informasi yang semakin pesat memberikan dampak signifikan terhadap berbagai aspek kehidupan, termasuk dunia pendidikan dan penelitian ilmiah.", "label": "isi"}
+{"text": "Pada era digital saat ini, penulisan karya ilmiah menjadi salah satu kewajiban utama bagi mahasiswa sebagai syarat kelulusan dalam jenjang pendidikan tinggi.", "label": "isi"}
+{"text": "Dokumen karya ilmiah seperti skripsi, tesis, dan laporan akhir harus memenuhi standar format yang telah ditetapkan oleh masing-masing institusi pendidikan.", "label": "isi"}
+{"text": "Berdasarkan pengamatan yang dilakukan, banyak mahasiswa mengalami kesulitan dalam memformat dokumen sesuai dengan pedoman yang berlaku.", "label": "isi"}
+{"text": "Hal ini menyebabkan proses penyelesaian tugas akhir menjadi lebih lama dan memerlukan revisi berulang kali hanya karena masalah format.", "label": "isi"}
+{"text": "Natural Language Processing (NLP) adalah cabang ilmu komputer yang berfokus pada interaksi antara komputer dan bahasa manusia.", "label": "isi"}
+{"text": "Model IndoBERT merupakan model bahasa Indonesia yang dikembangkan berdasarkan arsitektur BERT dan dilatih menggunakan korpus teks bahasa Indonesia yang besar.", "label": "isi"}
+{"text": "Penelitian ini bertujuan untuk mengembangkan sistem yang dapat memformat dokumen akademik secara otomatis menggunakan pendekatan hybrid.", "label": "isi"}
+{"text": "Sistem yang dikembangkan menggunakan dua layer pemrosesan yang saling melengkapi: layer rule-based deterministik dan layer klasifikasi berbasis IndoBERT.", "label": "isi"}
+{"text": "Hasil penelitian menunjukkan bahwa sistem mampu memformat dokumen dengan akurasi yang memadai untuk digunakan dalam praktik nyata.", "label": "isi"}
+{"text": "Penelitian ini memiliki beberapa keterbatasan yang perlu diperhatikan dalam penggunaannya di lapangan.", "label": "isi"}
+{"text": "Untuk pengembangan lebih lanjut, disarankan agar dataset pelatihan diperluas dengan menggunakan dokumen dari berbagai institusi pendidikan.", "label": "isi"}
+{"text": "Penelitian ini membahas tentang pengembangan sistem otomatisasi format dokumen akademik menggunakan pendekatan hybrid yang menggabungkan rule-based system dengan model klasifikasi IndoBERT.", "label": "abstrak"}
+{"text": "Sistem yang dibangun terdiri dari dua komponen utama yaitu ekstraksi aturan berbasis python-docx dan klasifikasi struktural menggunakan IndoBERT yang di-fine-tune.", "label": "abstrak"}
+{"text": "Tujuan penelitian ini adalah menghasilkan aplikasi web yang dapat memformat dokumen Word (.docx) sesuai dengan template institusi yang dipilih pengguna.", "label": "abstrak"}
+{"text": "Kata kunci: Natural Language Processing, IndoBERT, format dokumen, karya ilmiah, rule-based system", "label": "abstrak"}
+{"text": "Tabel 1. Distribusi Label Dataset Pelatihan IndoBERT", "label": "caption_tabel"}
+{"text": "Tabel 2. Hasil Evaluasi Model pada Data Uji", "label": "caption_tabel"}
+{"text": "Tabel 3. Perbandingan Akurasi Berbagai Metode Klasifikasi", "label": "caption_tabel"}
+{"text": "Tabel 4. Spesifikasi Perangkat Keras yang Digunakan", "label": "caption_tabel"}
+{"text": "Tabel 5. Contoh Template Konfigurasi Format Dokumen", "label": "caption_tabel"}
+{"text": "Gambar 1. Arsitektur Sistem AI Document Formatting Agent", "label": "caption_gambar"}
+{"text": "Gambar 2. Alur Pipeline Pemrosesan Dokumen", "label": "caption_gambar"}
+{"text": "Gambar 3. Arsitektur Model IndoBERT untuk Klasifikasi Teks", "label": "caption_gambar"}
+{"text": "Gambar 4. Tampilan Antarmuka Pengguna Aplikasi Web", "label": "caption_gambar"}
+{"text": "Gambar 5. Confusion Matrix Hasil Evaluasi Model", "label": "caption_gambar"}
+{"text": "Membangun sistem berbasis aturan (rule-based) untuk ekstraksi properti format", "label": "daftar_poin"}
+{"text": "Mengumpulkan dan melabeli dataset paragraf dari dokumen akademik Indonesia", "label": "daftar_poin"}
+{"text": "Melakukan fine-tuning model IndoBERT untuk klasifikasi struktural", "label": "daftar_poin"}
+{"text": "Mengintegrasikan kedua komponen dalam aplikasi web berbasis FastAPI dan React", "label": "daftar_poin"}
+{"text": "Melakukan evaluasi sistem secara komprehensif menggunakan metrik standar NLP", "label": "daftar_poin"}
+{"text": "Font: Times New Roman, ukuran 12pt", "label": "daftar_poin"}
+{"text": "Margin: atas 4cm, bawah 3cm, kiri 4cm, kanan 3cm", "label": "daftar_poin"}
+{"text": "Spasi: 1,5 untuk isi, 1 untuk daftar pustaka", "label": "daftar_poin"}
+{"text": "Devlin, J., Chang, M. W., Lee, K., & Toutanova, K. (2019). BERT: Pre-training of deep bidirectional transformers for language understanding. In Proceedings of NAACL-HLT 2019 (pp. 4171-4186).", "label": "daftar_pustaka"}
+{"text": "Koto, F., Rahimi, A., Lau, J. H., & Baldwin, T. (2020). IndoLEM and IndoBERT: A benchmark dataset and pre-trained language model for Indonesian NLP. In Proceedings of COLING 2020.", "label": "daftar_pustaka"}
+{"text": "Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., ... & Polosukhin, I. (2017). Attention is all you need. Advances in neural information processing systems, 30.", "label": "daftar_pustaka"}
+{"text": "Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A., ... & Rush, A. M. (2020). Transformers: State-of-the-art natural language processing. In Proceedings of EMNLP 2020 System Demonstrations.", "label": "daftar_pustaka"}
+{"text": "Wibowo, H. A., Santy, S., Aji, A. F., & Oh, S. (2023). Codet5+: Open code large language models for code understanding and generation. arXiv preprint arXiv:2305.07922.", "label": "daftar_pustaka"}
+{"text": "Politeknik Elektronika Negeri Surabaya. (2023). Pedoman Penulisan Tugas Akhir D3. Surabaya: PENS Press.", "label": "daftar_pustaka"}
+{"text": "Jurafsky, D., & Martin, J. H. (2023). Speech and language processing (3rd ed. draft). https://web.stanford.edu/~jurafsky/slp3/", "label": "daftar_pustaka"}

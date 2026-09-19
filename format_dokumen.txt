@@ -1,0 +1,522 @@
+
+Tugas Anda adalah **mengubah format, tata letak, dan gaya penulisan dokumen FILE TARGET agar mengikuti format dan tata letak FILE REFERENSI**, terutama mulai dari **BAB I sampai BAB VII/PENUTUP**.
+
+## ATURAN PALING PENTING
+
+**JANGAN mengubah isi/substansi laporan**
+
+Isi FILE TARGET harus tetap menjadi sumber utama. Anda hanya diperbolehkan memperbaiki atau menyesuaikan:
+
+* format dokumen;
+* tata letak;
+* style heading;
+* jenis dan ukuran font;
+* paragraf;
+* spasi;
+* indentasi;
+* margin;
+* penomoran;
+* format judul BAB dan subbab;
+* format tabel;
+* format gambar;
+* caption;
+* penempatan gambar/tabel;
+* header dan footer;
+* nomor halaman;
+* daftar isi;
+* daftar gambar;
+* daftar tabel;
+* format lampiran;
+* dan elemen visual/layout lainnya.
+
+Jangan mengganti isi SmartBudget AI dengan isi MedAgent.
+
+---
+
+# 1. PELAJARI FILE REFERENSI TERLEBIH DAHULU
+
+Sebelum melakukan perubahan apa pun, analisis secara menyeluruh file:
+
+`laporan akhir studi independen.docx`
+
+Anggap file tersebut sebagai **MASTER TEMPLATE FORMAT**, bukan sebagai sumber isi.
+
+Identifikasi dan catat karakteristik formatnya, antara lain:
+
+### A. Struktur dokumen
+
+Pelajari:
+
+* cover;
+* lembar pengesahan;
+* daftar isi;
+* daftar gambar;
+* daftar tabel;
+* BAB I;
+* BAB II;
+* BAB III;
+* BAB IV;
+* BAB V;
+* BAB VI;
+* BAB VII/Penutup;
+* lampiran.
+
+Perhatikan bagaimana setiap BAB dan subbab disusun.
+
+### B. Format BAB
+
+Pelajari secara spesifik:
+
+* posisi tulisan "BAB I";
+* posisi judul BAB;
+* jenis huruf;
+* ukuran huruf;
+* bold/tidak;
+* kapitalisasi;
+* alignment;
+* jarak antara BAB dan judul;
+* jarak antara judul BAB dengan subbab pertama;
+* page break;
+* penempatan BAB pada halaman baru.
+
+Terapkan pola yang sama pada FILE TARGET.
+
+### C. Format subbab
+
+Pelajari format:
+
+* `1.1`
+* `1.2`
+* `1.3`
+* `1.3.1`
+* `1.3.2`
+* dan seterusnya.
+
+Perhatikan:
+
+* font;
+* ukuran;
+* bold;
+* alignment;
+* indentation;
+* spacing before;
+* spacing after;
+* line spacing.
+
+Jangan mengubah nomor atau struktur subbab FILE TARGET kecuali diperlukan agar penomorannya konsisten.
+
+### D. Format paragraf
+
+Pelajari paragraf isi pada FILE REFERENSI:
+
+* font;
+* ukuran font;
+* alignment;
+* line spacing;
+* first-line indent;
+* spacing before;
+* spacing after;
+* jarak antarparagraf;
+* margin kiri/kanan;
+* konsistensi paragraf.
+
+Kemudian terapkan style tersebut ke paragraf isi FILE TARGET.
+
+### E. Format tabel
+
+Pelajari:
+
+* posisi tabel;
+* ukuran tabel;
+* alignment;
+* border;
+* font;
+* ukuran font;
+* bold pada header;
+* spacing;
+* caption tabel;
+* posisi caption.
+
+**PENTING:**
+Caption tabel harus mengikuti pola FILE REFERENSI.
+
+Jika pada template caption berada di atas tabel, maka seluruh caption tabel FILE TARGET juga harus berada di atas tabel.
+
+Jangan mengubah data atau isi tabel.
+
+### F. Format gambar
+
+Pelajari:
+
+* ukuran gambar;
+* alignment;
+* posisi gambar;
+* jarak gambar dengan teks;
+* caption gambar;
+* format caption;
+* penomoran gambar.
+
+Terapkan pola tersebut ke seluruh gambar FILE TARGET.
+
+Jangan mengubah gambar atau isi gambarnya.
+
+### G. Daftar isi
+
+Setelah format BAB dan subbab selesai:
+
+1. Pastikan heading menggunakan style yang konsisten.
+2. Perbarui daftar isi.
+3. Pastikan nomor halaman otomatis benar.
+4. Jangan mengetik nomor halaman secara manual jika dapat menggunakan field Word otomatis.
+
+### H. Daftar gambar dan tabel
+
+Periksa seluruh caption.
+
+Pastikan:
+
+* nomor gambar konsisten;
+* nomor tabel konsisten;
+* caption menggunakan style yang konsisten;
+* daftar gambar diperbarui;
+* daftar tabel diperbarui;
+* nomor halaman otomatis benar.
+
+---
+
+# 2. FORMAT YANG HARUS DIPINDAHKAN
+
+Gunakan FILE REFERENSI sebagai acuan untuk:
+
+* Page Setup;
+* margin;
+* ukuran kertas;
+* header;
+* footer;
+* nomor halaman;
+* font;
+* paragraph style;
+* heading style;
+* spacing;
+* indentation;
+* alignment;
+* page break;
+* section break;
+* caption;
+* tabel;
+* gambar;
+* daftar isi;
+* daftar gambar;
+* daftar tabel;
+* dan struktur layout.
+
+Namun:
+
+**JANGAN menyalin isi contoh ke dalam target.**
+
+---
+
+# 3. PERTAHANKAN ISI FILE TARGET
+
+Semua isi berikut dari FILE TARGET harus dipertahankan:
+
+* judul penelitian;
+* nama penulis;
+* NIM;
+* nama universitas;
+* nama fakultas;
+* program studi;
+* nama mitra;
+* isi BAB I;
+* isi BAB II;
+* isi BAB III;
+* isi BAB IV;
+* isi BAB V;
+* isi BAB VI;
+* BAB VII;
+* daftar pustaka;
+* lampiran;
+* tabel;
+* gambar;
+* kode;
+* referensi;
+* data;
+* hasil penelitian;
+* pembahasan;
+* dan informasi lainnya.
+
+Jangan melakukan parafrase terhadap isi hanya karena formatnya sedang diperbaiki.
+
+Jangan menghapus paragraf.
+
+Jangan menambahkan teori baru.
+
+Jangan mengubah angka hasil penelitian.
+
+Jangan mengganti nama, NIM, judul, atau informasi identitas.
+
+---
+
+# 4. KHUSUS BAB I SAMPAI BAB VII
+
+Prioritas utama pekerjaan adalah:
+
+**BAB I → BAB II → BAB III → BAB IV → BAB V → BAB VI → BAB VII/PENUTUP**
+
+Untuk setiap BAB:
+
+1. Pertahankan isi asli.
+2. Terapkan format BAB dari FILE REFERENSI.
+3. Terapkan style subbab dari FILE REFERENSI.
+4. Rapikan spacing.
+5. Rapikan alignment.
+6. Rapikan indentation.
+7. Pastikan setiap BAB dimulai pada halaman baru.
+8. Pastikan heading tidak terpisah secara aneh dari paragraf berikutnya.
+9. Pastikan tabel/gambar tidak menyebabkan layout berantakan.
+10. Pastikan nomor halaman konsisten.
+
+---
+
+# 5. JANGAN MENYAMAKAN STRUKTUR ISI SECARA PAKSA
+
+Ini sangat penting.
+
+FILE TARGET dan FILE REFERENSI memiliki isi dan struktur subbab yang berbeda.
+
+Contohnya FILE TARGET memiliki:
+
+* 1.1 Latar Belakang
+* 1.2 Tujuan Studi Independen
+* 1.3 Manfaat Proyek/Studi Independen
+* 1.3.1 Manfaat bagi Pengembangan Pengetahuan Akademis
+* dst.
+
+Sedangkan FILE REFERENSI memiliki struktur yang berbeda.
+
+**Jangan menghapus atau mengganti subbab FILE TARGET hanya agar sama dengan FILE REFERENSI.**
+
+Yang disamakan adalah **FORMAT**, bukan substansi atau struktur penelitian.
+
+Jika struktur subbab berbeda, pertahankan struktur FILE TARGET tetapi gunakan style visual FILE REFERENSI.
+
+---
+
+# 6. PENOMORAN
+
+Periksa dan perbaiki konsistensi:
+
+* BAB I–VII;
+* 1.1, 1.2, 1.3;
+* 1.3.1, 1.3.2;
+* 2.1, 2.2;
+* dan seterusnya.
+
+Jangan membuat nomor baru jika tidak diperlukan.
+
+Jika terdapat kesalahan nomor pada tabel atau gambar, lakukan penyesuaian agar penomoran konsisten dengan struktur dokumen.
+
+Contoh:
+
+`Gambar 4.1`
+`Gambar 4.2`
+`Gambar 4.3`
+
+dan seterusnya.
+
+Begitu juga:
+
+`Tabel 4.1`
+`Tabel 4.2`
+`Tabel 4.3`
+
+Gunakan numbering yang konsisten dan tidak manual jika memungkinkan.
+
+---
+
+# 7. FONT DAN BAHASA
+
+Gunakan font dan ukuran yang digunakan FILE REFERENSI sebagai standar utama.
+
+Jangan mengubah bahasa Indonesia menjadi bahasa Inggris.
+
+Istilah teknis seperti:
+
+* Machine Learning
+* Artificial Intelligence
+* Generative AI
+* Agentic AI
+* Streamlit
+* Groq API
+* Logistic Regression
+* Linear Regression
+* TF-IDF
+
+tetap dipertahankan.
+
+Jika FILE REFERENSI menggunakan format italic untuk istilah bahasa asing/teknis tertentu, terapkan aturan italic tersebut secara konsisten pada FILE TARGET tanpa mengubah kata-katanya.
+
+---
+
+# 8. HEADER, FOOTER, DAN NOMOR HALAMAN
+
+Samakan dengan FILE REFERENSI.
+
+Perhatikan:
+
+* posisi nomor halaman;
+* format nomor halaman;
+* font nomor halaman;
+* header;
+* footer;
+* perbedaan halaman awal dan halaman isi jika ada;
+* section;
+* halaman pembuka BAB.
+
+Pastikan nomor halaman tidak rusak setelah dokumen diedit.
+
+---
+
+# 9. COVER
+
+Format cover FILE TARGET juga harus disesuaikan dengan FILE REFERENSI.
+
+Namun isi cover tetap menggunakan data FILE TARGET.
+
+Contoh:
+
+* judul tetap judul target;
+* nama tetap nama target;
+* NIM tetap NIM target;
+* universitas tetap Universitas Negeri Surabaya;
+* fakultas tetap Fakultas target;
+* program studi tetap target;
+* tahun tetap target.
+
+Jangan mengganti data tersebut dengan data dari FILE REFERENSI.
+
+---
+
+# 10. LEMBAR PENGESAHAN
+
+Pertahankan seluruh informasi pada lembar pengesahan FILE TARGET.
+
+Yang boleh diubah hanyalah:
+
+* posisi;
+* spacing;
+* font;
+* alignment;
+* ukuran;
+* tabel/layout;
+* tanda tangan;
+* dan format visual.
+
+Jangan mengganti nama dosen, mahasiswa, NIM, tanggal, atau informasi lainnya dengan data FILE REFERENSI.
+
+---
+
+# 11. HASIL AKHIR YANG DIINGINKAN
+
+Hasil akhirnya harus berupa:
+
+**FILE TARGET dengan isi SmartBudget AI yang tetap sama, tetapi tampilan dan tata letaknya dibuat semirip mungkin dengan FILE REFERENSI.**
+
+Bayangkan:
+
+> FILE REFERENSI = "template desain/format"
+
+> FILE TARGET = "isi yang harus dimasukkan ke template"
+
+Jadi jangan membuat laporan baru dari nol.
+
+Edit FILE TARGET secara langsung.
+
+---
+
+# 12. QUALITY CONTROL
+
+Setelah selesai, lakukan pemeriksaan menyeluruh dari halaman pertama sampai halaman terakhir.
+
+Periksa:
+
+### Struktur
+
+* [ ] Cover
+* [ ] Lembar pengesahan
+* [ ] Daftar isi
+* [ ] Daftar tabel
+* [ ] Daftar gambar
+* [ ] BAB I
+* [ ] BAB II
+* [ ] BAB III
+* [ ] BAB IV
+* [ ] BAB V
+* [ ] BAB VI
+* [ ] BAB VII/Penutup
+* [ ] Daftar pustaka
+* [ ] Lampiran
+
+### Formatting
+
+* [ ] Font konsisten
+* [ ] Ukuran font konsisten
+* [ ] Heading konsisten
+* [ ] Paragraf konsisten
+* [ ] Spacing konsisten
+* [ ] Indentasi konsisten
+* [ ] Margin konsisten
+* [ ] Alignment konsisten
+* [ ] Page break benar
+* [ ] Section break benar
+* [ ] Header/footer benar
+* [ ] Nomor halaman benar
+
+### Gambar dan tabel
+
+* [ ] Semua gambar tetap ada
+* [ ] Semua tabel tetap ada
+* [ ] Caption tidak hilang
+* [ ] Caption berada pada posisi yang benar
+* [ ] Penomoran gambar konsisten
+* [ ] Penomoran tabel konsisten
+* [ ] Daftar gambar diperbarui
+* [ ] Daftar tabel diperbarui
+
+### Isi
+
+* [ ] Tidak ada paragraf yang hilang
+* [ ] Tidak ada tabel yang hilang
+* [ ] Tidak ada gambar yang hilang
+* [ ] Tidak ada data yang berubah
+* [ ] Tidak ada nama/NIM yang berubah
+* [ ] Tidak ada isi MedAgent yang masuk ke laporan SmartBudget
+
+---
+
+# 13. ATURAN SAAT MENEMUKAN KONFLIK FORMAT
+
+Jika terdapat perbedaan antara FILE TARGET dan FILE REFERENSI:
+
+**Prioritas:**
+
+1. Isi FILE TARGET harus dipertahankan.
+2. Format FILE REFERENSI menjadi acuan.
+3. Struktur isi FILE TARGET tetap dipertahankan.
+4. Jangan mengorbankan isi hanya demi membuat tampilan identik.
+5. Jika format tertentu dari FILE REFERENSI tidak cocok dengan struktur FILE TARGET, adaptasikan format tersebut secara logis tanpa mengubah isi.
+
+---
+
+# 14. HASIL YANG HARUS DIBERIKAN
+
+Setelah proses selesai:
+
+1. Simpan sebagai file `.docx` baru.
+2. Jangan menimpa file asli.
+3. Gunakan nama file asli
+4. Pastikan file dapat dibuka di Microsoft Word.
+5. Pastikan seluruh layout tidak mengalami kerusakan.
+
+
+

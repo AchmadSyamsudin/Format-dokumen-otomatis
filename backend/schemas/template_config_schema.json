@@ -1,0 +1,172 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TemplateConfig",
+  "description": "Skema konfigurasi format dokumen akademik. Digunakan oleh rule_based_extractor (ekstraksi) dan rule_based_formatter (penerapan).",
+  "type": "object",
+  "required": ["version", "name", "margins", "styles"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Versi skema konfigurasi ini.",
+      "example": "1.0"
+    },
+    "name": {
+      "type": "string",
+      "description": "Nama template (e.g. 'Template Skripsi Politeknik Negeri X')."
+    },
+    "description": {
+      "type": "string",
+      "description": "Deskripsi singkat sumber aturan format."
+    },
+    "margins": {
+      "type": "object",
+      "description": "Margin halaman dalam satuan sentimeter (cm).",
+      "required": ["top_cm", "bottom_cm", "left_cm", "right_cm"],
+      "properties": {
+        "top_cm":    { "type": "number", "description": "Margin atas (cm)." },
+        "bottom_cm": { "type": "number", "description": "Margin bawah (cm)." },
+        "left_cm":   { "type": "number", "description": "Margin kiri (cm)." },
+        "right_cm":  { "type": "number", "description": "Margin kanan (cm)." }
+      }
+    },
+    "default_line_spacing": {
+      "type": "number",
+      "description": "Jarak baris default (dalam satuan baris, e.g. 1.5 = 1½ spasi)."
+    },
+    "styles": {
+      "type": "object",
+      "description": "Aturan format per label struktural paragraf.",
+      "additionalProperties": false,
+      "properties": {
+        "judul_bab": { "$ref": "#/definitions/ParagraphStyle" },
+        "sub_bab":   { "$ref": "#/definitions/ParagraphStyle" },
+        "sub_sub_bab": { "$ref": "#/definitions/ParagraphStyle" },
+        "isi":       { "$ref": "#/definitions/ParagraphStyle" },
+        "abstrak":   { "$ref": "#/definitions/ParagraphStyle" },
+        "caption_tabel":  { "$ref": "#/definitions/ParagraphStyle" },
+        "caption_gambar": { "$ref": "#/definitions/ParagraphStyle" },
+        "daftar_poin":    { "$ref": "#/definitions/ParagraphStyle" },
+        "daftar_pustaka": { "$ref": "#/definitions/ParagraphStyle" }
+        ,"cover_judul": { "$ref": "#/definitions/ParagraphStyle" }
+        ,"cover_identitas": { "$ref": "#/definitions/ParagraphStyle" }
+        ,"pengesahan_label": { "$ref": "#/definitions/ParagraphStyle" }
+        ,"pengesahan_jabatan": { "$ref": "#/definitions/ParagraphStyle" }
+        ,"pengesahan_tanda_tangan": { "$ref": "#/definitions/ParagraphStyle" }
+      }
+    }
+  },
+  "definitions": {
+    "ParagraphStyle": {
+      "type": "object",
+      "description": "Aturan format untuk satu jenis/label paragraf.",
+      "properties": {
+        "font_family": {
+          "type": "string",
+          "description": "Nama font (e.g. 'Times New Roman', 'Arial')."
+        },
+        "font_size_pt": {
+          "type": "number",
+          "description": "Ukuran font dalam poin (pt)."
+        },
+        "bold":   { "type": ["boolean", "null"], "description": "Tebal (true/false/null=inherit)." },
+        "italic": { "type": ["boolean", "null"], "description": "Miring." },
+        "underline": { "type": ["boolean", "null"], "description": "Garis bawah." },
+        "alignment": {
+          "type": "string",
+          "enum": ["LEFT", "CENTER", "RIGHT", "JUSTIFY"],
+          "description": "Rata paragraf."
+        },
+        "line_spacing": {
+          "type": ["number", "null"],
+          "description": "Jarak baris. Null berarti gunakan default_line_spacing."
+        },
+        "line_spacing_rule": {
+          "type": ["string", "null"],
+          "enum": ["MULTIPLE", "EXACTLY", "AT_LEAST", null]
+        },
+        "line_spacing_pt": {
+          "type": ["number", "null"]
+        },
+        "space_before_pt": {
+          "type": ["number", "null"],
+          "description": "Jarak sebelum paragraf dalam poin (pt)."
+        },
+        "space_after_pt": {
+          "type": ["number", "null"],
+          "description": "Jarak setelah paragraf dalam poin (pt)."
+        },
+        "first_line_indent_cm": {
+          "type": ["number", "null"],
+          "description": "Indentasi baris pertama dalam cm (null = tidak ada)."
+        },
+        "right_indent_cm": {
+          "type": ["number", "null"]
+        },
+        "tab_stops": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "object",
+            "required": ["position_cm", "alignment", "leader"],
+            "properties": {
+              "position_cm": { "type": "number" },
+              "alignment": { "type": "string" },
+              "leader": { "type": "string" }
+            }
+          }
+        },
+        "left_indent_cm": {
+          "type": ["number", "null"],
+          "description": "Indentasi kiri seluruh paragraf dalam cm."
+        },
+        "numbering_format": {
+          "type": ["string", "null"],
+          "description": "Format penomoran jika berlaku (e.g. 'BAB {roman}', '1.1', 'a.')."
+        },
+        "all_caps": {
+          "type": ["boolean", "null"],
+          "description": "Teks diubah ke huruf kapital semua (small caps / all caps)."
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "version": "1.0",
+      "name": "Template Skripsi PENS",
+      "description": "Berdasarkan Buku Panduan Penulisan Tugas Akhir PENS 2023",
+      "margins": { "top_cm": 4, "bottom_cm": 3, "left_cm": 4, "right_cm": 3 },
+      "default_line_spacing": 1.5,
+      "styles": {
+        "judul_bab": {
+          "font_family": "Times New Roman", "font_size_pt": 14,
+          "bold": true, "alignment": "CENTER",
+          "numbering_format": "BAB {roman}", "all_caps": true,
+          "space_before_pt": 0, "space_after_pt": 12
+        },
+        "sub_bab": {
+          "font_family": "Times New Roman", "font_size_pt": 12,
+          "bold": true, "alignment": "LEFT",
+          "numbering_format": "1.1", "space_before_pt": 12, "space_after_pt": 6
+        },
+        "isi": {
+          "font_family": "Times New Roman", "font_size_pt": 12,
+          "bold": false, "alignment": "JUSTIFY",
+          "line_spacing": 1.5, "first_line_indent_cm": 1.27
+        },
+        "caption_tabel": {
+          "font_family": "Times New Roman", "font_size_pt": 12,
+          "bold": false, "alignment": "CENTER"
+        },
+        "caption_gambar": {
+          "font_family": "Times New Roman", "font_size_pt": 12,
+          "bold": false, "alignment": "CENTER"
+        },
+        "daftar_pustaka": {
+          "font_family": "Times New Roman", "font_size_pt": 12,
+          "alignment": "JUSTIFY", "line_spacing": 1.0,
+          "space_after_pt": 6
+        }
+      }
+    }
+  ]
+}
