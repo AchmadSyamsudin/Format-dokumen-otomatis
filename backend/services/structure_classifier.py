@@ -285,7 +285,7 @@ class StructureClassifier:
         labels = []
         for idx in para_indices:
             para  = doc.paragraphs[idx]
-            label = _heuristic_label(para) or "isi"
+            label = _heuristic_label(para, para_index=idx) or "isi"
             labels.append(label)
         return labels
 

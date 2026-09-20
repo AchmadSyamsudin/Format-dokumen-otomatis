@@ -70,7 +70,7 @@ TemplateConfig = dict
 # Heuristic Labeler (Fallback — bukan AI)
 # -------------------------------------------------------------------------
 
-def _heuristic_label(paragraph) -> Optional[str]:
+def _heuristic_label(paragraph, para_index: int = 999) -> Optional[str]:
     """
     Tebak label struktural paragraf menggunakan aturan deterministik sederhana.
 
@@ -122,15 +122,32 @@ def _heuristic_label(paragraph) -> Optional[str]:
     )):
         return "pengesahan_label"
 
-    # --- Judul Bab ---
-    # "BAB I", "BAB II", dll. — biasanya bold, center, font besar, ALL CAPS
+    # --- Cover Judul ---
+    # HARUS dicek SEBELUM judul_bab karena keduanya bisa CENTER + bold + font besar.
+    # Cover judul: 30 paragraf pertama + CENTER + ALL CAPS atau bold font >= 12.
+    # Tidak dibatasi panjang teks agar judul laporan panjang (>160 kar) tetap lolos.
     import re
     if (
-        re.match(r"^BAB\s+([IVXLCDM]+|\d+)\b", text_upper)
-        or (alignment == "CENTER" and bold and font_size and font_size >= 14 and not any(term in text_upper for term in ("NAMA", "NIM", "FAKULTAS", "UNIVERSITAS", "TAHUN")))
-        or (len(text) < 80 and bold and alignment == "CENTER" and not any(term in text_upper for term in ("NAMA", "NIM", "FAKULTAS", "UNIVERSITAS", "PROGRAM STUDI", "TAHUN", "PENYUSUN")))
+        alignment == "CENTER"
+        and para_index < 30
+        and (text.isupper() or (bold and font_size and font_size >= 12))
+        and not any(kw in text_upper for kw in (
+            "BAB ", "DAFTAR ISI", "DAFTAR TABEL", "DAFTAR GAMBAR",
+            "ABSTRAK", "ABSTRACT", "KATA PENGANTAR", "DAFTAR PUSTAKA",
+            "LEMBAR PENGESAHAN",
+        ))
+        and not any(term in text_upper for term in (
+            "NAMA", "NIM", "FAKULTAS", "UNIVERSITAS", "PROGRAM STUDI", "TAHUN",
+        ))
     ):
-        return "judul_bab"
+        return "cover_judul"
+
+    # --- Cover Identitas ---
+    if para_index < 30 and len(text) < 140 and any(term in text_upper for term in (
+        "PROGRAM STUDI", "FAKULTAS", "UNIVERSITAS", "INSTITUT",
+        "NAMA", "NIM", "TAHUN ",
+    )):
+        return "cover_identitas"
 
     # --- Caption Tabel ---
     if text_upper.startswith("TABEL ") or text_upper.startswith("TABLE "):
@@ -140,15 +157,16 @@ def _heuristic_label(paragraph) -> Optional[str]:
     if text_upper.startswith("GAMBAR ") or text_upper.startswith("FIGURE "):
         return "caption_gambar"
 
-    if len(text) < 140 and any(term in text_upper for term in (
-        "PROGRAM STUDI", "FAKULTAS", "UNIVERSITAS", "INSTITUT",
-        "NAMA", "NIM", "TAHUN ",
-    )):
-        return "cover_identitas"
-    if alignment == "CENTER" and len(text) < 160 and (
-        text.isupper() or (bold and font_size and font_size >= 14)
+    # --- Judul Bab ---
+    # "BAB I", "BAB II", dll. — biasanya bold, center, font besar, ALL CAPS.
+    # Guard para_index >= 15 pada kondisi generik agar tidak mengambil teks cover.
+    if (
+        re.match(r"^BAB\s+([IVXLCDM]+|\d+)\b", text_upper)
+        or (para_index >= 15 and alignment == "CENTER" and bold and font_size and font_size >= 14 and not any(term in text_upper for term in ("NAMA", "NIM", "FAKULTAS", "UNIVERSITAS", "TAHUN")))
+        or (para_index >= 15 and len(text) < 80 and bold and alignment == "CENTER" and not any(term in text_upper for term in ("NAMA", "NIM", "FAKULTAS", "UNIVERSITAS", "PROGRAM STUDI", "TAHUN", "PENYUSUN")))
     ):
-        return "cover_judul"
+        return "judul_bab"
+
 
     # --- Abstrak ---
     if "ABSTRAK" in text_upper or "ABSTRACT" in text_upper:
@@ -326,11 +344,14 @@ def _aggregate_style(samples: list[dict]) -> dict:
                 if selected is not None
                 else None
             )
-        elif key in {"left_indent_cm", "right_indent_cm", "hanging_indent_cm"}:
-            # Untuk indent kiri/kanan/hanging, default Word adalah 0.0 jika tidak ada override.
-            # treat_none_as=0.0 memastikan paragraf tanpa override tidak mengalahkan
-            # paragraf dengan nilai hangig yang valid.
+        elif key in {"left_indent_cm", "right_indent_cm"}:
+            # None berarti "tidak ada override" → dianggap 0.0 (default Word)
             aggregated[key] = _majority_value(values, min_ratio=0.5, treat_none_as=0.0)
+        elif key == "hanging_indent_cm":
+            # None berarti "paragraf ini TIDAK pakai pola hanging" — bukan 0.0.
+            # Hanya sampel yang benar-benar punya hanging indent yang boleh ikut voting.
+            # Kalau mayoritas tidak punya hanging (None), hasilnya None (tidak diterapkan).
+            aggregated[key] = _majority_value(values, min_ratio=0.5)
         else:
             aggregated[key] = _majority_value(values, min_ratio=0.5)
 
@@ -394,7 +415,7 @@ def extract_template_config(
 
         # Tentukan label
         if using_heuristic:
-            label = _heuristic_label(para)
+            label = _heuristic_label(para, para_index=idx)
         else:
             label = labelled_paragraphs.get(idx)
 

@@ -284,7 +284,7 @@ def format_document(
 
         # Dapatkan label paragraf
         if using_heuristic:
-            label = _heuristic_label(para)
+            label = _heuristic_label(para, para_index=idx)
         else:
             label = labelled_paragraphs.get(idx)
 
