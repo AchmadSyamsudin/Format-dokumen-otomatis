@@ -44,6 +44,8 @@ from utils.docx_utils import (
     get_space_before_after_pt,
     get_first_line_indent_cm,
     get_left_right_indent_cm,
+    get_hanging_indent_cm,
+    get_left_indent_for_hanging,
     get_tab_stops,
     get_document_margins,
     has_numbering,
@@ -189,6 +191,20 @@ def extract_paragraph_properties(paragraph) -> dict:
     space_before, space_after = get_space_before_after_pt(paragraph)
 
     left_indent_cm, right_indent_cm = get_left_right_indent_cm(paragraph)
+
+    # Deteksi pola hanging indent (Heading2 / Heading3 untuk sub_bab / sub_sub_bab).
+    # Jika hanging_indent_cm > 0, paragraf menggunakan <w:ind w:left="X" w:hanging="X"/>
+    # dan kita simpan nilainya TERPISAH dari first_line_indent_cm positif.
+    hanging_indent_cm = get_hanging_indent_cm(paragraph)
+    left_for_hanging  = get_left_indent_for_hanging(paragraph) if hanging_indent_cm else None
+
+    # Jika paragraf memakai pola hanging, gunakan left dari XML (lebih akurat);
+    # sebaliknya gunakan nilai dari API seperti biasa.
+    effective_left_indent = left_for_hanging if hanging_indent_cm else left_indent_cm
+
+    # first_line_indent_cm hanya relevan untuk pola firstLine positif (bukan hanging)
+    first_line_indent_cm = None if hanging_indent_cm else get_first_line_indent_cm(paragraph)
+
     return {
         "font_family":          get_effective_font_name(paragraph),
         "font_size_pt":         get_effective_font_size(paragraph),
@@ -199,8 +215,9 @@ def extract_paragraph_properties(paragraph) -> dict:
         "line_spacing_pt":      get_line_spacing_pt(paragraph),
         "space_before_pt":      space_before,
         "space_after_pt":       space_after,
-        "first_line_indent_cm": get_first_line_indent_cm(paragraph),
-        "left_indent_cm":       left_indent_cm,
+        "first_line_indent_cm": first_line_indent_cm,
+        "hanging_indent_cm":    hanging_indent_cm,
+        "left_indent_cm":       effective_left_indent,
         "right_indent_cm":      right_indent_cm,
         "tab_stops":             get_tab_stops(paragraph),
     }
@@ -279,7 +296,8 @@ def _aggregate_style(samples: list[dict]) -> dict:
         "alignment", "line_spacing",
         "line_spacing_rule", "line_spacing_pt",
         "space_before_pt", "space_after_pt",
-        "first_line_indent_cm", "left_indent_cm", "right_indent_cm",
+        "first_line_indent_cm", "hanging_indent_cm",
+        "left_indent_cm", "right_indent_cm",
         "tab_stops",
     ]
 
@@ -308,15 +326,18 @@ def _aggregate_style(samples: list[dict]) -> dict:
                 if selected is not None
                 else None
             )
-        elif key in {"left_indent_cm", "right_indent_cm"}:
-            # Untuk indent kiri/kanan, default Word style adalah 0.0 jika tidak ada override
+        elif key in {"left_indent_cm", "right_indent_cm", "hanging_indent_cm"}:
+            # Untuk indent kiri/kanan/hanging, default Word adalah 0.0 jika tidak ada override.
+            # treat_none_as=0.0 memastikan paragraf tanpa override tidak mengalahkan
+            # paragraf dengan nilai hangig yang valid.
             aggregated[key] = _majority_value(values, min_ratio=0.5, treat_none_as=0.0)
         else:
             aggregated[key] = _majority_value(values, min_ratio=0.5)
 
     # Round nilai numerik agar lebih bersih
     for num_key in ("font_size_pt", "line_spacing", "space_before_pt",
-                    "space_after_pt", "first_line_indent_cm", "left_indent_cm", "right_indent_cm"):
+                    "space_after_pt", "first_line_indent_cm", "hanging_indent_cm",
+                    "left_indent_cm", "right_indent_cm"):
         if aggregated.get(num_key) is not None:
             aggregated[num_key] = round(aggregated[num_key], 2)
 

@@ -119,15 +119,27 @@ def apply_style_to_paragraph(paragraph, style_config: dict) -> None:
         pf.space_after = Pt(space_after_pt)
         logger.debug("  space_after → %.1f pt", space_after_pt)
 
-    # --- First Line Indent ---
+    # --- Indent: firstLine vs hanging ---
+    hanging_indent_cm    = style_config.get("hanging_indent_cm")
     first_line_indent_cm = style_config.get("first_line_indent_cm")
-    if first_line_indent_cm is not None:
-        pf.first_line_indent = Cm(first_line_indent_cm)
 
-    # --- Left Indent ---
-    left_indent_cm = style_config.get("left_indent_cm")
-    if left_indent_cm is not None:
-        pf.left_indent = Cm(left_indent_cm)
+    if hanging_indent_cm and hanging_indent_cm > 0:
+        # Pola hanging indent (sub_bab / sub_sub_bab):
+        # <w:ind w:left="X" w:hanging="X"/> → firstLine negatif di python-docx
+        left_indent_cm = style_config.get("left_indent_cm")
+        if left_indent_cm is not None:
+            pf.left_indent = Cm(left_indent_cm)
+        pf.first_line_indent = -Cm(hanging_indent_cm)
+        logger.debug("  hanging indent → left=%.3f cm, hanging=%.3f cm", left_indent_cm or 0, hanging_indent_cm)
+    else:
+        # Pola firstLine positif (isi, abstrak, dll.)
+        if first_line_indent_cm is not None:
+            pf.first_line_indent = Cm(first_line_indent_cm)
+
+        # --- Left Indent ---
+        left_indent_cm = style_config.get("left_indent_cm")
+        if left_indent_cm is not None:
+            pf.left_indent = Cm(left_indent_cm)
 
     right_indent_cm = style_config.get("right_indent_cm")
     if right_indent_cm is not None:
@@ -328,6 +340,35 @@ def format_document(
                 pf.first_line_indent = Cm(0)
                 pf.alignment = WD_ALIGN_PARAGRAPH.LEFT
                 logger.info("[PENGESAHAN 2-KOLOM] Paragraf #%d disejajarkan sempurna: %r <-> %r", idx, sig_parts[0], sig_parts[1])
+                stats["formatted"] += 1
+                continue
+
+            elif len(sig_parts) == 1 and label in ("pengesahan_label", "pengesahan_jabatan"):
+                # Paragraf berdiri sendiri (bukan pasangan 2-kolom): paksa rata tengah.
+                # Bersihkan artefak spasi/tab manual di awal teks dari dokumen asli.
+                clean_text = para_text.strip()
+                para.text = clean_text  # reset semua run sekaligus
+
+                # Font dari style yang relevan
+                pengesahan_style = styles.get("pengesahan_label") or styles.get("pengesahan_jabatan") or {}
+                font_family  = pengesahan_style.get("font_family")
+                font_size_pt = pengesahan_style.get("font_size_pt") or 11.0
+                bold_val     = pengesahan_style.get("bold")
+                for r in para.runs:
+                    if font_family:
+                        r.font.name = font_family
+                    if font_size_pt:
+                        r.font.size = Pt(font_size_pt)
+                    if bold_val is not None:
+                        r.font.bold = bold_val
+
+                # Format paragraf: center, nol semua indent
+                pf = para.paragraph_format
+                pf.alignment        = WD_ALIGN_PARAGRAPH.CENTER
+                pf.left_indent      = Cm(0)
+                pf.right_indent     = Cm(0)
+                pf.first_line_indent = Cm(0)
+                logger.info("[PENGESAHAN 1-KOLOM] Paragraf #%d dipusat-tengahkan: %r", idx, clean_text[:60])
                 stats["formatted"] += 1
                 continue
 

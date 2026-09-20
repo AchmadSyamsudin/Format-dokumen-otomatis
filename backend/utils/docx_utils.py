@@ -374,6 +374,91 @@ def get_left_right_indent_cm(paragraph) -> tuple[Optional[float], Optional[float
     return to_cm(pf.left_indent), to_cm(pf.right_indent)
 
 
+def get_hanging_indent_cm(paragraph) -> Optional[float]:
+    """
+    Deteksi dan kembalikan nilai hanging indent paragraf dalam cm.
+
+    Dalam OOXML, hanging indent direpresentasikan sebagai atribut ``w:hanging``
+    di elemen ``<w:ind>``. python-docx memetakan ini ke ``first_line_indent``
+    dengan nilai **negatif** (misalnya -Cm(1.5)).
+
+    Fungsi ini membaca langsung dari XML untuk mendapatkan nilai ``w:hanging``
+    (bukan ``w:firstLine``), sehingga tidak ada ambiguitas tanda.
+
+    Returns:
+        Nilai hanging indent dalam cm (float positif), atau None jika paragraf
+        tidak menggunakan pola hanging indent.
+    """
+    # Coba baca dari paragraf (override level)
+    pPr = paragraph._p.find(qn("w:pPr"))
+    if pPr is not None:
+        ind = pPr.find(qn("w:ind"))
+        if ind is not None:
+            hanging_val = ind.get(qn("w:hanging"))
+            if hanging_val is not None:
+                try:
+                    # Nilai dalam twips (1 cm = 567 twips)
+                    return round(int(hanging_val) / 567, 3)
+                except (ValueError, TypeError):
+                    pass
+
+    # Fallback: cek dari style paragraf (misal Heading2, Heading3)
+    if paragraph.style:
+        style_elm = paragraph.style.element
+        pPr_style = style_elm.find(qn("w:pPr"))
+        if pPr_style is not None:
+            ind = pPr_style.find(qn("w:ind"))
+            if ind is not None:
+                hanging_val = ind.get(qn("w:hanging"))
+                if hanging_val is not None:
+                    try:
+                        return round(int(hanging_val) / 567, 3)
+                    except (ValueError, TypeError):
+                        pass
+
+    return None
+
+
+def get_left_indent_for_hanging(paragraph) -> Optional[float]:
+    """
+    Ambil nilai ``w:left`` yang menyertai pola hanging indent dari XML.
+
+    Saat paragraf menggunakan ``w:hanging``, nilai ``w:left`` di XML adalah
+    total lebar inden (posisi teks baris ke-2+), bukan sekedar offset tambahan.
+    python-docx API mengembalikan nilai ini via ``pf.left_indent``.
+
+    Returns:
+        Nilai left indent dalam cm (float), atau None.
+    """
+    # Baca dari paragraf level dulu (override)
+    pPr = paragraph._p.find(qn("w:pPr"))
+    if pPr is not None:
+        ind = pPr.find(qn("w:ind"))
+        if ind is not None:
+            left_val = ind.get(qn("w:left"))
+            if left_val is not None:
+                try:
+                    return round(int(left_val) / 567, 3)
+                except (ValueError, TypeError):
+                    pass
+
+    # Fallback ke style
+    if paragraph.style:
+        style_elm = paragraph.style.element
+        pPr_style = style_elm.find(qn("w:pPr"))
+        if pPr_style is not None:
+            ind = pPr_style.find(qn("w:ind"))
+            if ind is not None:
+                left_val = ind.get(qn("w:left"))
+                if left_val is not None:
+                    try:
+                        return round(int(left_val) / 567, 3)
+                    except (ValueError, TypeError):
+                        pass
+
+    return None
+
+
 def get_tab_stops(paragraph) -> list[dict]:
     """Ambil tab stop eksplisit paragraf dalam format serializable."""
     stops = []
