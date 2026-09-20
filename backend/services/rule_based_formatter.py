@@ -22,13 +22,15 @@ PENTING:
 """
 
 import logging
+import re
 from pathlib import Path
 from typing import Optional
 
 from docx import Document
 from docx.shared import Cm, Pt
 from docx.enum.text import WD_LINE_SPACING
-from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER
+from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER, WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
 from utils.docx_utils import (
@@ -41,6 +43,26 @@ from utils.docx_utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def to_roman(num: int) -> str:
+    """Konversi integer positif (1..3999) ke string angka Romawi."""
+    val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
+    syb = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
+    res = ""
+    for i in range(len(val)):
+        while num >= val[i]:
+            res += syb[i]
+            num -= val[i]
+    return res
+
+
+UNNUMBERED_HEADINGS = {
+    "DAFTAR ISI", "DAFTAR TABEL", "DAFTAR GAMBAR",
+    "DAFTAR PUSTAKA", "DAFTAR LAMPIRAN", "LAMPIRAN",
+    "ABSTRAK", "ABSTRACT", "LEMBAR PENGESAHAN", "KATA PENGANTAR",
+    "PRAKATA", "BIODATA", "TAHUN", "COVER",
+}
 
 
 # -------------------------------------------------------------------------
@@ -59,9 +81,10 @@ def apply_style_to_paragraph(paragraph, style_config: dict) -> None:
         style_config: Dict berisi properti format sesuai ParagraphStyle schema
     """
     p_pr = paragraph._p.get_or_add_pPr()
-    numbering = p_pr.find(qn("w:numPr"))
+    # PENTING: Pertahankan <w:pStyle> dan <w:numPr> agar relasi style Word
+    # (Heading 1 dll.) dan penomoran tidak hilang saat reset properti manual
     for child in list(p_pr):
-        if child is not numbering:
+        if child.tag not in (qn("w:pStyle"), qn("w:numPr")):
             p_pr.remove(child)
     pf = paragraph.paragraph_format
 
@@ -236,6 +259,8 @@ def format_document(
 
     # --- 4. Iterasi dan format setiap paragraf ---
     stats = {"formatted": 0, "skipped_empty": 0, "skipped_no_label": 0, "skipped_no_style": 0}
+    bab_counter = 1
+    in_pengesahan = False
 
     for idx, para in enumerate(doc.paragraphs):
         para_text = get_paragraph_text(para)
@@ -251,6 +276,12 @@ def format_document(
         else:
             label = labelled_paragraphs.get(idx)
 
+        # Tracking bagian Lembar Pengesahan
+        if "LEMBAR PENGESAHAN" in para_text.upper():
+            in_pengesahan = True
+        elif in_pengesahan and idx > 45 and label == "judul_bab":
+            in_pengesahan = False
+
         # Logging debug (1): Cek label yang ter-assign untuk tiap paragraf yang mengandung "LEMBAR PENGESAHAN"
         if "LEMBAR PENGESAHAN" in para_text.upper():
             logger.info(
@@ -260,6 +291,45 @@ def format_document(
                 label,
                 (label in styles) if label else False,
             )
+
+        # --- Penanganan Khusus: Lembar Pengesahan (Sejajarkan baris DPL/Mhs, Nama, NIP/NIM dalam 1 baris) ---
+        if in_pengesahan and para_text.strip():
+            sig_parts = re.split(r'[\t]{1,}|\s{4,}', para_text.strip())
+            sig_parts = [x.strip() for x in sig_parts if x.strip()]
+            if len(sig_parts) == 2 and not any(h in para_text.upper() for h in ("LEMBAR PENGESAHAN", "MENGETAHUI", "MENYETUJUI", "SURABAYA,")):
+                # Rekonstruksi runs: \t + Kolom Kiri + \t + Kolom Kanan
+                para.text = ""
+                para.add_run("\t")
+                r_left = para.add_run(sig_parts[0])
+                para.add_run("\t")
+                r_right = para.add_run(sig_parts[1])
+
+                # Font styling
+                pengesahan_style = styles.get("pengesahan_jabatan") or styles.get("pengesahan_tanda_tangan") or {}
+                font_family = pengesahan_style.get("font_family")
+                font_size_pt = pengesahan_style.get("font_size_pt") or 11.0
+                bold_val = pengesahan_style.get("bold")
+
+                for r in (r_left, r_right):
+                    if font_family:
+                        r.font.name = font_family
+                    if font_size_pt:
+                        r.font.size = Pt(font_size_pt)
+                    if bold_val is not None:
+                        r.font.bold = bold_val
+
+                # Atur tab stops: 3.0 cm (kiri tengah) dan 12.25 cm (kanan tengah)
+                pf = para.paragraph_format
+                pf.tab_stops.clear_all()
+                pf.tab_stops.add_tab_stop(Cm(3.0), WD_TAB_ALIGNMENT.CENTER)
+                pf.tab_stops.add_tab_stop(Cm(12.25), WD_TAB_ALIGNMENT.CENTER)
+                pf.left_indent = Cm(0)
+                pf.right_indent = Cm(0)
+                pf.first_line_indent = Cm(0)
+                pf.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                logger.info("[PENGESAHAN 2-KOLOM] Paragraf #%d disejajarkan sempurna: %r <-> %r", idx, sig_parts[0], sig_parts[1])
+                stats["formatted"] += 1
+                continue
 
         if label is None:
             stats["skipped_no_label"] += 1
@@ -297,6 +367,49 @@ def format_document(
         text_preview = para_text[:50]
         logger.debug("Paragraf #%d [%s]: '%s...'", idx, label, text_preview)
         apply_style_to_paragraph(para, style_config)
+
+        # --- Penanganan Khusus: Heading BAB (I - VII) ---
+        if label == "judul_bab" and idx > 45:
+            t_upper_clean = para_text.upper().replace('\n', ' ').strip()
+            is_unnum = any(t_upper_clean.startswith(u) for u in UNNUMBERED_HEADINGS)
+
+            if not is_unnum and len(para_text.strip()) < 160:
+                has_bab = bool(re.match(r"^BAB\s+([IVXLCDM]+|\d+)\b", t_upper_clean))
+                if not has_bab:
+                    roman_str = to_roman(bab_counter)
+                    clean_title = re.sub(r'^[ \t\r\n]+', '', para_text).strip()
+                    para.text = f"BAB {roman_str}\n{clean_title}"
+
+                    # Terapkan styling font ke runs judul BAB
+                    for r in para.runs:
+                        font_family = style_config.get("font_family")
+                        font_size_pt = style_config.get("font_size_pt") or 12.0
+                        if font_family:
+                            r.font.name = font_family
+                        if font_size_pt:
+                            r.font.size = Pt(font_size_pt)
+                        r.font.bold = True
+
+                    # Matikan numbering otomatis Word (numId=0) agar tidak terjadi dobel penomoran
+                    p_pr = para._p.get_or_add_pPr()
+                    num_pr = p_pr.get_or_add_numPr()
+                    num_id = num_pr.find(qn("w:numId"))
+                    if num_id is None:
+                        num_id = OxmlElement("w:numId")
+                        num_pr.append(num_id)
+                    num_id.set(qn("w:val"), "0")
+
+                    logger.info("[HEADING BAB] Menambahkan teks literal 'BAB %s' ke Paragraf #%d: %r", roman_str, idx, clean_title[:60])
+                    bab_counter += 1
+                else:
+                    logger.info("[HEADING BAB] Paragraf #%d sudah memiliki teks BAB: %r", idx, para_text.strip()[:60])
+                    bab_counter += 1
+
+                # Judul BAB selalu mulai di halaman baru, rata tengah, dan keep with next
+                para.paragraph_format.page_break_before = True
+                para.paragraph_format.keep_with_next = True
+                para.paragraph_format.alignment = ALIGNMENT_MAP.get("CENTER")
+
         if label == "pengesahan_heading":
             para.paragraph_format.page_break_before = True
             para.paragraph_format.keep_with_next = True

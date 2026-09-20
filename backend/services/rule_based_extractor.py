@@ -99,9 +99,18 @@ def _heuristic_label(paragraph) -> Optional[str]:
     bold       = get_effective_bold(paragraph)
     alignment  = get_alignment_str(paragraph)
 
+    p_pr = paragraph._p.pPr
+    pstyle = p_pr.pStyle.val if p_pr is not None and p_pr.pStyle is not None else ""
+
+    # Jika paragraf memakai style Heading 1 di Word, prioritaskan sebagai judul_bab/pengesahan
+    if pstyle in ("Heading1", "Heading 1", "heading 1"):
+        if text_upper in {"LEMBAR PENGESAHAN", "LEMBAR PENGESAHAN:"}:
+            return "pengesahan_heading"
+        return "judul_bab"
+
     if text_upper in {"LEMBAR PENGESAHAN", "LEMBAR PENGESAHAN:"}:
         return "pengesahan_heading"
-    if "DOSEN PEMBIMBING LAPANGAN" in text_upper and "MAHASISWA" in text_upper:
+    if "DOSEN PEMBIMBING" in text_upper and "MAHASISWA" in text_upper:
         return "pengesahan_jabatan"
     if any(term in text_upper for term in ("NIP.", "NIM.", "TTD")):
         return "pengesahan_tanda_tangan"
@@ -113,10 +122,11 @@ def _heuristic_label(paragraph) -> Optional[str]:
 
     # --- Judul Bab ---
     # "BAB I", "BAB II", dll. — biasanya bold, center, font besar, ALL CAPS
+    import re
     if (
-        text_upper.startswith("BAB ")
-        or (alignment == "CENTER" and bold and font_size and font_size >= 14)
-        or (len(text) < 60 and bold and alignment == "CENTER")
+        re.match(r"^BAB\s+([IVXLCDM]+|\d+)\b", text_upper)
+        or (alignment == "CENTER" and bold and font_size and font_size >= 14 and not any(term in text_upper for term in ("NAMA", "NIM", "FAKULTAS", "UNIVERSITAS", "TAHUN")))
+        or (len(text) < 80 and bold and alignment == "CENTER" and not any(term in text_upper for term in ("NAMA", "NIM", "FAKULTAS", "UNIVERSITAS", "PROGRAM STUDI", "TAHUN", "PENYUSUN")))
     ):
         return "judul_bab"
 
