@@ -61,6 +61,7 @@ SPECIAL_STRUCTURAL_LABELS = [
     "pengesahan_jabatan",
     "pengesahan_label",
     "pengesahan_tanda_tangan",
+    "pengesahan_nama",  # Nama penanda tangan (tidak punya kata kunci baku → deteksi kontekstual)
 ]
 
 
@@ -68,12 +69,12 @@ SPECIAL_STRUCTURAL_LABELS = [
 # File Utilities
 # -------------------------------------------------------------------------
 
-def open_docx(file_path: Path) -> Document:
+def open_docx(file_path: Path | str) -> Document:
     """
     Buka file .docx dan kembalikan objek Document.
 
     Args:
-        file_path: Path ke file .docx
+        file_path: Path atau string path ke file .docx
 
     Returns:
         Objek docx.Document
@@ -82,6 +83,7 @@ def open_docx(file_path: Path) -> Document:
         FileNotFoundError: Jika file tidak ditemukan
         ValueError: Jika file bukan format .docx yang valid
     """
+    file_path = Path(file_path)
     if not file_path.exists():
         raise FileNotFoundError(f"File tidak ditemukan: {file_path}")
     if file_path.suffix.lower() != ".docx":
@@ -92,17 +94,18 @@ def open_docx(file_path: Path) -> Document:
         raise ValueError(f"Gagal membuka file .docx: {exc}") from exc
 
 
-def save_docx(doc: Document, output_path: Path) -> Path:
+def save_docx(doc: Document, output_path: Path | str) -> Path:
     """
     Simpan objek Document ke file .docx.
 
     Args:
         doc: Objek docx.Document
-        output_path: Path tujuan penyimpanan
+        output_path: Path atau string path tujuan penyimpanan
 
     Returns:
         Path file yang disimpan
     """
+    output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(output_path))
     logger.info("Dokumen disimpan ke: %s", output_path)

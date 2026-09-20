@@ -269,6 +269,34 @@ def format_document(
         # Import di sini untuk menghindari circular import
         from services.rule_based_extractor import _heuristic_label
 
+    # --- 3.5. Pre-processing: Hapus paragraf kosong manual sebelum sub_sub_bab ---
+    # File target sering punya blank line sebelum Heading3 (sub_sub_bab), tapi file
+    # referensi tidak (jarak visual sudah cukup dari space_before/after style).
+    # Hapus blank line tersebut agar hasil dokumen konsisten dengan referensi.
+    paragraphs_to_delete: list = []
+    for idx in range(1, len(doc.paragraphs)):
+        para_curr = doc.paragraphs[idx]
+        para_prev = doc.paragraphs[idx - 1]
+
+        # Cek apakah paragraf saat ini adalah sub_sub_bab (pStyle Heading3)
+        p_pr = para_curr._p.pPr
+        curr_style = p_pr.pStyle.val if p_pr is not None and p_pr.pStyle is not None else ""
+        is_sub_sub = curr_style in ("Heading3", "Heading 3", "heading 3")
+
+        if is_sub_sub and is_paragraph_empty(para_prev):
+            paragraphs_to_delete.append(para_prev._p)
+
+    for p_elem in paragraphs_to_delete:
+        parent = p_elem.getparent()
+        if parent is not None:
+            parent.remove(p_elem)
+
+    if paragraphs_to_delete:
+        logger.info(
+            "[PRE-PROCESS] Dihapus %d paragraf kosong manual sebelum sub_sub_bab (Heading3).",
+            len(paragraphs_to_delete),
+        )
+
     # --- 4. Iterasi dan format setiap paragraf ---
     stats = {"formatted": 0, "skipped_empty": 0, "skipped_no_label": 0, "skipped_no_style": 0}
     bab_counter = 1
@@ -343,7 +371,7 @@ def format_document(
                 stats["formatted"] += 1
                 continue
 
-            elif len(sig_parts) == 1 and label in ("pengesahan_label", "pengesahan_jabatan"):
+            elif len(sig_parts) == 1 and label in ("pengesahan_label", "pengesahan_jabatan", "pengesahan_nama"):
                 # Paragraf berdiri sendiri (bukan pasangan 2-kolom): paksa rata tengah.
                 # Bersihkan artefak spasi/tab manual di awal teks dari dokumen asli.
                 clean_text = para_text.strip()
@@ -368,7 +396,7 @@ def format_document(
                 pf.left_indent      = Cm(0)
                 pf.right_indent     = Cm(0)
                 pf.first_line_indent = Cm(0)
-                logger.info("[PENGESAHAN 1-KOLOM] Paragraf #%d dipusat-tengahkan: %r", idx, clean_text[:60])
+                logger.info("[PENGESAHAN 1-KOLOM] Paragraf #%d dipusat-tengahkan [%s]: %r", idx, label, clean_text[:60])
                 stats["formatted"] += 1
                 continue
 

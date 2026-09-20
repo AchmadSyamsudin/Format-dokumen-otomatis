@@ -261,10 +261,19 @@ class StructureClassifier:
                 "cover_judul", "cover_identitas", "pengesahan_heading",
                 "pengesahan_jabatan",
                 "pengesahan_label", "pengesahan_tanda_tangan",
+                "sub_bab", "sub_sub_bab",
             }:
                 labels[position] = special_label
 
         result = dict(zip(para_indices, labels))
+
+        # Refinement kontekstual: Nama penanda tangan (pengesahan_nama)
+        # Paragraf yang berlabel 'isi' tapi bertetangga langsung dengan
+        # pengesahan_tanda_tangan kemungkinan besar adalah nama orang → reklasifikasi.
+        # Dibatasi hanya pada wilayah lembar pengesahan (index kecil atau setelah
+        # pengesahan_heading terdeteksi) untuk menghindari false positive di isi laporan.
+        result = _refine_pengesahan_nama(doc, result)
+
         logger.info("Klasifikasi selesai. Distribusi label: %s", _count_labels(result))
         return result
 
@@ -300,6 +309,74 @@ def _count_labels(labelled: dict[int, str]) -> dict[str, int]:
     for label in labelled.values():
         counts[label] = counts.get(label, 0) + 1
     return dict(sorted(counts.items()))
+
+
+def _refine_pengesahan_nama(doc, result: dict[int, str]) -> dict[int, str]:
+    """
+    Refinement kontekstual: deteksi nama penanda tangan (pengesahan_nama).
+
+    Paragraf nama orang seperti "Dodik Arwin Dermawan, S.ST., S.T., M.T." tidak
+    cocok dengan kata kunci pengesahan apapun sehingga terklasifikasi sebagai 'isi'.
+    Namun mereka selalu berdampingan dengan paragraf pengesahan_tanda_tangan
+    (yang berisi NIP./NIM.).
+
+    Strategi: cari semua paragraf berlabel 'pengesahan_tanda_tangan' dalam hasil.
+    Periksa paragraf tepat sebelum dan sesudahnya — jika berlabel 'isi' atau None,
+    reklasifikasi sebagai 'pengesahan_nama'.
+
+    Dibatasi pada area lembar pengesahan (paragraf setelah pengesahan_heading
+    terdeteksi dan sebelum judul_bab berikutnya) untuk mencegah false positive.
+
+    Args:
+        doc: Objek Document python-docx
+        result: Dict {indeks_paragraf: label} dari klasifikasi utama
+
+    Returns:
+        Dict label yang sudah diperbarui
+    """
+    refined = dict(result)
+    all_indices = sorted(result.keys())
+
+    # Temukan rentang lembar pengesahan [start, end)
+    pengesahan_start = None
+    pengesahan_end   = len(doc.paragraphs)
+    for idx in all_indices:
+        lbl = result.get(idx)
+        if lbl == "pengesahan_heading" and pengesahan_start is None:
+            pengesahan_start = idx
+        elif pengesahan_start is not None and lbl == "judul_bab" and idx > pengesahan_start + 5:
+            pengesahan_end = idx
+            break
+
+    if pengesahan_start is None:
+        return refined  # Tidak ada lembar pengesahan terdeteksi
+
+    # Kumpulkan semua indeks paragraf (termasuk yang kosong) di area pengesahan
+    all_doc_indices = list(range(pengesahan_start, pengesahan_end))
+
+    # Cari paragraf pengesahan_tanda_tangan di area itu
+    for doc_idx in all_doc_indices:
+        if result.get(doc_idx) != "pengesahan_tanda_tangan":
+            continue
+
+        # Periksa paragraf-paragraf di sekeliling (bisa melewati paragraf kosong)
+        for candidate_idx in range(max(pengesahan_start, doc_idx - 4), min(pengesahan_end, doc_idx + 4)):
+            if candidate_idx == doc_idx:
+                continue
+            candidate_label = result.get(candidate_idx)
+            if candidate_label in ("isi", None):
+                candidate_text = get_paragraph_text(doc.paragraphs[candidate_idx])
+                # Pastikan bukan paragraf kosong
+                if candidate_text and candidate_text.strip():
+                    refined[candidate_idx] = "pengesahan_nama"
+                    logger.debug(
+                        "[PENGESAHAN NAMA] Paragraf #%d reklasifikasi 'isi' → 'pengesahan_nama': %r",
+                        candidate_idx,
+                        candidate_text[:60],
+                    )
+
+    return refined
+
 
 
 # -------------------------------------------------------------------------

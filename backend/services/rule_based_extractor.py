@@ -110,6 +110,14 @@ def _heuristic_label(paragraph, para_index: int = 999) -> Optional[str]:
             return "pengesahan_heading"
         return "judul_bab"
 
+    # Heading2 → sub_bab  (font ukuran inherited dari style, bukan dari run)
+    if pstyle in ("Heading2", "Heading 2", "heading 2"):
+        return "sub_bab"
+
+    # Heading3 → sub_sub_bab
+    if pstyle in ("Heading3", "Heading 3", "heading 3"):
+        return "sub_sub_bab"
+
     if text_upper in {"LEMBAR PENGESAHAN", "LEMBAR PENGESAHAN:"}:
         return "pengesahan_heading"
     if "DOSEN PEMBIMBING" in text_upper and "MAHASISWA" in text_upper:
@@ -178,8 +186,9 @@ def _heuristic_label(paragraph, para_index: int = 999) -> Optional[str]:
     if has_numbering(paragraph):
         return "daftar_poin"
 
-    # --- Sub-Bab ---
-    # Bold, pendek, tidak center
+    # --- Sub-Bab (fallback generik — hanya berlaku jika pStyle bukan Heading2/3) ---
+    # Bold, pendek, tidak center. Diprioritaskan di bawah pStyle check agar heading
+    # berbasis style yang font_size-nya inherited (None di level run) tetap lolos.
     if bold and font_size and 11 <= font_size <= 13 and len(text) < 80 and alignment != "CENTER":
         return "sub_bab"
 
