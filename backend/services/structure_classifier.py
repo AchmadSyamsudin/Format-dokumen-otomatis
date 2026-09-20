@@ -256,7 +256,7 @@ class StructureClassifier:
         # Refinement deterministik untuk elemen cover/pengesahan yang tidak
         # menjadi label baru pada model lama.
         for position, idx in enumerate(para_indices):
-            special_label = _heuristic_label(doc.paragraphs[idx])
+            special_label = _heuristic_label(doc.paragraphs[idx], para_index=idx)
             if special_label in {
                 "cover_judul", "cover_identitas", "pengesahan_heading",
                 "pengesahan_jabatan",

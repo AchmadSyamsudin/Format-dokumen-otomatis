@@ -359,7 +359,7 @@ def get_first_line_indent_cm(paragraph) -> Optional[float]:
 
     if indent is not None:
         if hasattr(indent, "cm"):
-            return round(indent.cm, 3)
+            return round(round(indent.cm, 2), 1)
 
     return None
 
@@ -369,7 +369,7 @@ def get_left_right_indent_cm(paragraph) -> tuple[Optional[float], Optional[float
     pf = paragraph.paragraph_format
 
     def to_cm(value) -> Optional[float]:
-        return round(value.cm, 3) if value is not None and hasattr(value, "cm") else None
+        return round(round(value.cm, 2), 1) if value is not None and hasattr(value, "cm") else None
 
     return to_cm(pf.left_indent), to_cm(pf.right_indent)
 
@@ -386,8 +386,8 @@ def get_hanging_indent_cm(paragraph) -> Optional[float]:
     (bukan ``w:firstLine``), sehingga tidak ada ambiguitas tanda.
 
     Returns:
-        Nilai hanging indent dalam cm (float positif), atau None jika paragraf
-        tidak menggunakan pola hanging indent.
+        Nilai hanging indent dalam cm (float positif), dibulatkan ke 1 desimal,
+        atau None jika paragraf tidak menggunakan pola hanging indent.
     """
     # Coba baca dari paragraf (override level)
     pPr = paragraph._p.find(qn("w:pPr"))
@@ -397,8 +397,9 @@ def get_hanging_indent_cm(paragraph) -> Optional[float]:
             hanging_val = ind.get(qn("w:hanging"))
             if hanging_val is not None:
                 try:
-                    # Nilai dalam twips (1 cm = 567 twips)
-                    return round(int(hanging_val) / 567, 3)
+                    # Nilai dalam twips (1 cm = 567 twips).
+                    # Dibulatkan 1 desimal (via 2 desimal dulu agar artefak integer twips 425 vs 426 tidak memecah voting)
+                    return round(round(int(hanging_val) / 567, 2), 1)
                 except (ValueError, TypeError):
                     pass
 
@@ -412,7 +413,7 @@ def get_hanging_indent_cm(paragraph) -> Optional[float]:
                 hanging_val = ind.get(qn("w:hanging"))
                 if hanging_val is not None:
                     try:
-                        return round(int(hanging_val) / 567, 3)
+                        return round(round(int(hanging_val) / 567, 2), 1)
                     except (ValueError, TypeError):
                         pass
 
@@ -428,7 +429,7 @@ def get_left_indent_for_hanging(paragraph) -> Optional[float]:
     python-docx API mengembalikan nilai ini via ``pf.left_indent``.
 
     Returns:
-        Nilai left indent dalam cm (float), atau None.
+        Nilai left indent dalam cm (float), dibulatkan ke 1 desimal, atau None.
     """
     # Baca dari paragraf level dulu (override)
     pPr = paragraph._p.find(qn("w:pPr"))
@@ -438,7 +439,7 @@ def get_left_indent_for_hanging(paragraph) -> Optional[float]:
             left_val = ind.get(qn("w:left"))
             if left_val is not None:
                 try:
-                    return round(int(left_val) / 567, 3)
+                    return round(round(int(left_val) / 567, 2), 1)
                 except (ValueError, TypeError):
                     pass
 
@@ -452,7 +453,7 @@ def get_left_indent_for_hanging(paragraph) -> Optional[float]:
                 left_val = ind.get(qn("w:left"))
                 if left_val is not None:
                     try:
-                        return round(int(left_val) / 567, 3)
+                        return round(round(int(left_val) / 567, 2), 1)
                     except (ValueError, TypeError):
                         pass
 

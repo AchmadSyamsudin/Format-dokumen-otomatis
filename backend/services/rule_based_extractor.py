@@ -119,6 +119,7 @@ def _heuristic_label(paragraph, para_index: int = 999) -> Optional[str]:
     if any(term in text_upper for term in (
         "MENYETUJUI", "MENGETAHUI", "PEMBIMBING", "PENGUJI",
         "KETUA PROGRAM STUDI", "DEKAN",
+        "KOORDINATOR", "KAPRODI", "KETUA PRODI",
     )):
         return "pengesahan_label"
 
@@ -222,6 +223,16 @@ def extract_paragraph_properties(paragraph) -> dict:
 
     # first_line_indent_cm hanya relevan untuk pola firstLine positif (bukan hanging)
     first_line_indent_cm = None if hanging_indent_cm else get_first_line_indent_cm(paragraph)
+
+    # Bulatkan nilai indentasi ke 1 desimal saat ekstraksi agar variasi minor
+    # (seperti twips 425 vs 426 atau beda 0.001 cm) tidak memecah suara mayoritas.
+    def _round_1dec(val: Optional[float]) -> Optional[float]:
+        return round(round(val, 2), 1) if val is not None else None
+
+    first_line_indent_cm = _round_1dec(first_line_indent_cm)
+    hanging_indent_cm = _round_1dec(hanging_indent_cm)
+    effective_left_indent = _round_1dec(effective_left_indent)
+    right_indent_cm = _round_1dec(right_indent_cm)
 
     return {
         "font_family":          get_effective_font_name(paragraph),
