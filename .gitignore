@@ -26,3 +26,6 @@ backend/data/*.db
 .idea/
 .DS_Store
 Thumbs.db
+
+#konteks projek
+konteks.md
